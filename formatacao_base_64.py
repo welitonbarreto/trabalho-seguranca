@@ -1,5 +1,4 @@
-import base64
-
+import math_util
 base_64_table = [
     b'A', b'B', b'C', b'D', b'E', b'F', b'G', b'H', b'I', b'J', b'K', b'L', b'M', b'N', b'O', b'P', b'Q', b'R', b'S', b'T', b'U', b'V', b'W', b'X', b'Y', b'Z',
     b'a', b'b', b'c', b'd', b'e', b'f', b'g', b'h', b'i', b'j', b'k', b'l', b'm', b'n', b'o', b'p', b'q', b'r', b's', b't', b'u', b'v', b'w', b'x', b'y', b'z',
@@ -9,7 +8,7 @@ base_64_table = [
 
 def obtem_bits_from_byte(byte_entrada, posicao, quantidade):
     string_binaria = bin(byte_entrada)[2:]
-    string_binaria_formatada =  (8 - len(string_binaria)) * '0' + string_binaria
+    string_binaria_formatada = (8 - len(string_binaria)) * '0' + string_binaria
 
     return string_binaria_formatada[posicao:posicao+quantidade]
 
@@ -55,34 +54,28 @@ def calcula_tamanho_decodificacao(bytes_codificados):
 
 def decodifica_base_64(bytes_codificados):
     tamanho_esperado = calcula_tamanho_decodificacao(bytes_codificados)
-    bytes_decodificados = []
+    bytes_decodificados = b''
     residual_bits = ''
     index = 0
 
-    while len(bytes_decodificados) != tamanho_esperado:
-        #print(bytes_codificados[index])
-        #print(bin(bytes_codificados[index]))
-       # print(bytes_codificados[index: index+1])
-        residual_bits += bin(base_64_table.index(bytes_codificados.to_bytes(8)))[2:]
-        #print(residual_bits)
-        if len(residual_bits) >= 8:
-            bytes_decodificados.append(residual_bits[:8])
-            residual_bits = residual_bits[8:]
-
+    while len(bytes_decodificados) < tamanho_esperado:
+        byte_atual = bytes_codificados[index].to_bytes(1)
+        residual_bits += format(base_64_table.index(byte_atual), '008b')[2:]
         index += 1
 
-    return b''.join(bytes_decodificados)
+        if len(residual_bits) >= 8:
+            bytes_decodificados += math_util.bytes_from_bit_string(residual_bits[:8])
+            residual_bits = residual_bits[8:]
+
+
+    return bytes_decodificados
 
 '''
 
-bytes_entrada = b'Man'
+bytes_entrada = b''
 bytes_codificados = codifica_base_64(bytes_entrada)
 print(bytes_codificados)
-
-#print(base_64_table)
 b = decodifica_base_64(bytes_codificados)
 
-#print(b)
-#b =base64.b64decode(r)
-#print(b)
+print(b)
 '''

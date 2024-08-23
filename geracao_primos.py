@@ -43,10 +43,11 @@ def gera_numero_impar_aleatorio(tamanho_bytes):
     bytearray_gerado[-1] |= 1
     return  int.from_bytes(bytearray_gerado)
 
-def geraPrimoAleatorio(tamanho_bytes):
+def gera_primo_aleatorio_com_nbytes(tamanho_bytes):
     passou_teste = False
     while(not passou_teste):
         valor_aleatorio = gera_numero_impar_aleatorio(tamanho_bytes)
         passou_teste = teste_miller_rabin(valor_aleatorio) == "PROVAVELMENTE PRIMO"
 
     return valor_aleatorio
+

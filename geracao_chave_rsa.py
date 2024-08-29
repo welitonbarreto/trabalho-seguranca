@@ -24,5 +24,3 @@ def gera_chaves():
     print(f'Valor de n: {n}')
     print(f'Valor de e: {e}')
     print(f'Valor de d: {d}')
-
-gera_chaves()

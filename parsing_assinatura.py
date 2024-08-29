@@ -13,22 +13,26 @@ def assinatura_para_bytes(assinatura: AssinaturaRsa):
     return bytes_header + bytes_body
 
 
-def obtem_sub_bytes(bytes_entrada: bytes, posicao: int, quantidade: int):
+def sub_bytes(bytes_entrada: bytes, posicao: int, quantidade: int):
+    if posicao >= len(bytes_entrada) or (posicao+quantidade > len(bytes_entrada)):
+        raise Exception("A posicão e a quantidade desejada transborda os limites dos bytes de entrada")
+
     return bytes_entrada[posicao: posicao+quantidade]
 
+
+
 def bytes_para_assinatura(conteudo: bytes):
-    tamanho_mensagem = int.from_bytes(conteudo[:8])
-    tamanho_valor_modulo_n = int.from_bytes(conteudo[8:16])
-    tamanho_cifracao_hash = int.from_bytes(conteudo[16:24])
+    tamanho_mensagem = int.from_bytes(sub_bytes(conteudo, 0, 8))
+    tamanho_valor_modulo = int.from_bytes(sub_bytes(conteudo, 8, 8))
+    tamanho_cifracao_hash = int.from_bytes(sub_bytes(conteudo, 16, 8))
 
-    posicao_atual = 24
 
-    mensagem_bytes = obtem_sub_bytes(conteudo, posicao_atual, tamanho_mensagem)
-    posicao_atual += tamanho_mensagem
+    mensagem_bytes = sub_bytes(conteudo, 24, tamanho_mensagem)
+    valor_modulo = int.from_bytes(sub_bytes(conteudo, 24 + tamanho_mensagem, tamanho_valor_modulo))
+    cifracao_hash = int.from_bytes(sub_bytes(conteudo, 24 + tamanho_mensagem + tamanho_valor_modulo, tamanho_cifracao_hash))
 
-    valor_modulo_n = int.from_bytes(obtem_sub_bytes(conteudo, posicao_atual, tamanho_valor_modulo_n))
-    posicao_atual += tamanho_valor_modulo_n
+    if len(conteudo) > (tamanho_mensagem + tamanho_valor_modulo + tamanho_cifracao_hash + 24):
+        raise Exception("Sobraram bytes")
 
-    cifracao_hash = int.from_bytes(obtem_sub_bytes(conteudo, posicao_atual, tamanho_cifracao_hash))
 
-    return AssinaturaRsa(mensagem_bytes, valor_modulo_n, cifracao_hash)
+    return AssinaturaRsa(mensagem_bytes, valor_modulo, cifracao_hash)

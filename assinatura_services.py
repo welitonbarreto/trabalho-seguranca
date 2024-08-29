@@ -1,4 +1,3 @@
-from assinatura_rsa import AssinaturaRsa
 from rsa import KeyRsa
 import math_util
 import geracao_assinatura
@@ -32,16 +31,17 @@ def assina_arquivo():
 def verifica_assinatura_em_arquivo():
     nome_arquivo = input("Informe o nome do arquivo com a assinatura: ")
     chave_verificacao = int(input("Digite o valor da chave de verificação: "))
-    
-    conteudo = formatacao_base_64.decodifica_base_64(le_conteudo_arquivo(nome_arquivo))
-    assinatura = parsing_assinatura.bytes_para_assinatura(conteudo)
-    hash_obtido = math_util.converte_int_para_bytes(KeyRsa(assinatura.valor_modulo, chave_verificacao).decifra(assinatura.cifracao_hash))
-    
-    if sha256(assinatura.mensagem_bytes).digest() == hash_obtido:
+
+    try:
+        conteudo = formatacao_base_64.decodifica_base_64(le_conteudo_arquivo(nome_arquivo))
+        assinatura = parsing_assinatura.bytes_para_assinatura(conteudo)
+        hash_obtido = math_util.converte_int_para_bytes(KeyRsa(assinatura.valor_modulo, chave_verificacao).decifra(assinatura.cifracao_hash))
+
+        if sha256(assinatura.mensagem_bytes).digest() != hash_obtido:
+            raise Exception("Assinatura Inválida")
+        
         print("Assinatura Válida")
-    else:
+    except:
         print("Assinatura Inválida")
+        
 
-
-#assina_arquivo()
-verifica_assinatura_em_arquivo()

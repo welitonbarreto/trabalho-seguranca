@@ -14,7 +14,7 @@ def gera_bloco_dados(mensagem, tamanho_maximo, hash_function):
     return hash_function().digest() + padding  + b'\x01' + mensagem
   
 
-def encoding(mensagem, tamanho_maximo=512, hash_function=sha256):    
+def encoding(mensagem, tamanho_maximo, hash_function=sha256):    
     if len(mensagem) > tamanho_maximo - 2*hash_function().digest_size - 2:
         raise Exception("Mensagem muito grande!!!")
   
@@ -45,7 +45,7 @@ def obtem_mensagem_de_bloco_dados(bloco_dados, hash_function):
 
 
 
-def decoding(mensagem_cifrada, tamanho_maximo=512, hash_function=sha256):
+def decoding(mensagem_cifrada, hash_function=sha256):
     hash_digest_size =  hash_function().digest_size
     primeiro_byte, masked_seed, masked_bloco_dados = separa_texto_cifrado(mensagem_cifrada, hash_digest_size)
 
@@ -53,21 +53,6 @@ def decoding(mensagem_cifrada, tamanho_maximo=512, hash_function=sha256):
         raise Exception("Entrada inválida: primeiro byte deve ser b'\x00'")
 
     seed = xor(masked_seed, mgf1(masked_bloco_dados, len(masked_seed), hash_function))
-    bloco_dados = xor(masked_bloco_dados, mgf1(seed, tamanho_maximo - hash_digest_size - 1, hash_function))
+    bloco_dados = xor(masked_bloco_dados, mgf1(seed, len(mensagem_cifrada) - hash_digest_size - 1, hash_function))
 
     return obtem_mensagem_de_bloco_dados(bloco_dados, hash_function)
-
-
-'''
-
-mensagem_cifrada1 = encoding_oaep(b'\x02\xba')
-mensagem_cifrada2 = encoding_oaep(b'\x02\xba')
-
-print(f'Mensagem cifrada 1:{mensagem_cifrada1.hex()}')
-print(f'Mensagem cifrada 2:{mensagem_cifrada2.hex()}')
-
-print(f'Mensagem cifrada 2:{decoding_oaep(mensagem_cifrada2).hex()}')
-
-#print(mensagem_cifrada.hex())
-#mensagem_decifrada = decoding_oaep(mensagem_cifrada)
-#print(mensagem_decifrada)'''

@@ -41,15 +41,24 @@ def codifica_base_64(bytes_entrada):
     return b''.join(resultado)
 
 
-
-def calcula_tamanho_decodificacao(bytes_codificados):
+def conta_quantidade_padding(bytes_codificados):
     contador = 0
 
-    for a_byte in reversed(bytes_codificados):
-        if a_byte == ord(b'='):
-           contador += 1
+    for a_byte in reversed(bytes_codificados[-2:]):
+        if a_byte != ord(b'='):
+            return contador    
+
+        contador += 1
+
+    return contador
+
+def calcula_tamanho_decodificacao(bytes_codificados):
+    if len(bytes_codificados) % 4 != 0:
+        raise Exception("Entrada possui tamanho incorreto!!!")
+
+    quantidade_bytes_padding = conta_quantidade_padding(bytes_codificados)
         
-    return ((len(bytes_codificados) - contador) * 6 - contador*2) // 8
+    return ((len(bytes_codificados) - quantidade_bytes_padding) * 6 - quantidade_bytes_padding*2) // 8
 
 
 def decodifica_base_64(bytes_codificados):
@@ -69,13 +78,3 @@ def decodifica_base_64(bytes_codificados):
 
 
     return bytes_decodificados
-
-'''
-
-bytes_entrada = b''
-bytes_codificados = codifica_base_64(bytes_entrada)
-print(bytes_codificados)
-b = decodifica_base_64(bytes_codificados)
-
-print(b)
-'''

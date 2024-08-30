@@ -1,14 +1,14 @@
-from assinatura_rsa import AssinaturaRsa
+from bloco_assinado import BlocoAssinado
 import math_util
 
-def assinatura_para_bytes(assinatura: AssinaturaRsa):
-    bytes_header = len(assinatura.mensagem_bytes).to_bytes(8)
-    bytes_header += math_util.calcula_tamanho_em_bytes(assinatura.valor_modulo).to_bytes(8)
-    bytes_header += math_util.calcula_tamanho_em_bytes(assinatura.cifracao_hash).to_bytes(8)
+def bloco_assinado_para_bytes(bloco_assinado: BlocoAssinado):
+    bytes_header = len(bloco_assinado.bytes_bloco).to_bytes(8)
+    bytes_header += math_util.calcula_tamanho_em_bytes(bloco_assinado.valor_modulo_rsa).to_bytes(8)
+    bytes_header += math_util.calcula_tamanho_em_bytes(bloco_assinado.assinatura).to_bytes(8)
 
-    bytes_body = assinatura.mensagem_bytes
-    bytes_body += math_util.converte_int_para_bytes(assinatura.valor_modulo)
-    bytes_body += math_util.converte_int_para_bytes(assinatura.cifracao_hash)
+    bytes_body = bloco_assinado.bytes_bloco
+    bytes_body += math_util.converte_int_para_bytes(bloco_assinado.valor_modulo_rsa)
+    bytes_body += math_util.converte_int_para_bytes(bloco_assinado.assinatura)
 
     return bytes_header + bytes_body
 
@@ -21,18 +21,16 @@ def sub_bytes(bytes_entrada: bytes, posicao: int, quantidade: int):
 
 
 
-def bytes_para_assinatura(conteudo: bytes):
-    tamanho_mensagem = int.from_bytes(sub_bytes(conteudo, 0, 8))
-    tamanho_valor_modulo = int.from_bytes(sub_bytes(conteudo, 8, 8))
-    tamanho_cifracao_hash = int.from_bytes(sub_bytes(conteudo, 16, 8))
+def bytes_para_assinatura(bytes_entrada: bytes):
+    tamanho_bloco = int.from_bytes(sub_bytes(bytes_entrada, 0, 8))
+    tamanho_valor_modulo_rsa = int.from_bytes(sub_bytes(bytes_entrada, 8, 8))
+    tamanho_assinatura = int.from_bytes(sub_bytes(bytes_entrada, 16, 8))
 
+    bytes_bloco = sub_bytes(bytes_entrada, 24, tamanho_bloco)
+    valor_modulo_rsa = int.from_bytes(sub_bytes(bytes_entrada, 24 + tamanho_bloco, tamanho_valor_modulo_rsa))
+    assinatura = int.from_bytes(sub_bytes(bytes_entrada, 24 + tamanho_bloco + tamanho_valor_modulo_rsa, tamanho_assinatura))
 
-    mensagem_bytes = sub_bytes(conteudo, 24, tamanho_mensagem)
-    valor_modulo = int.from_bytes(sub_bytes(conteudo, 24 + tamanho_mensagem, tamanho_valor_modulo))
-    cifracao_hash = int.from_bytes(sub_bytes(conteudo, 24 + tamanho_mensagem + tamanho_valor_modulo, tamanho_cifracao_hash))
+    if len(bytes_entrada) > (tamanho_bloco + tamanho_valor_modulo_rsa + tamanho_assinatura + 24):
+        raise Exception("Sintaxe incorreta!!!")
 
-    if len(conteudo) > (tamanho_mensagem + tamanho_valor_modulo + tamanho_cifracao_hash + 24):
-        raise Exception("Sobraram bytes")
-
-
-    return AssinaturaRsa(mensagem_bytes, valor_modulo, cifracao_hash)
+    return BlocoAssinado.a_partir_assinatura_precalculada(bytes_bloco, valor_modulo_rsa, assinatura)

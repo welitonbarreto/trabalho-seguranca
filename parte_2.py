@@ -23,7 +23,7 @@ def chama_servico_desejado(opcao_selecionada: int):
         case 3:
             rsa_oaep_services.decifra_criptograma_usuario()
         case 4:
-            assinatura_services.assina_arquivo()
+            assinatura_services.assina_conteudo_arquivo()
         case 5:
             assinatura_services.verifica_assinatura_em_arquivo()
         case 6:

@@ -1,6 +1,3 @@
-import geracao_primos
-import math_util
-
 class KeyRsa():
     def __init__(self, valor_modulo, chave):
         self._valor_modulo = valor_modulo
@@ -21,16 +18,3 @@ class KeyRsa():
     def valor_modulo(self) -> int:
         return self._valor_modulo
     
-'''
-
-p = geracao_primos.geraPrimoAleatorio(128)
-q = geracao_primos.geraPrimoAleatorio(128)
-totiente = (p-1) * (q-1)
-e = 65537
-d = math_util.algoritmo_extendido_euclides(totiente, e)[2] % totiente
-
-print(f'Esse é o n {p*q}')
-print(f'Esse é o d {d}')
-print((d*e) % (totiente))
-#print(len(bin(p)[2:]))
-'''

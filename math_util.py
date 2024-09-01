@@ -1,6 +1,6 @@
 import math
 
-def algoritmo_extendido_euclides(valor_anterior, valor_atual):
+def algoritmo_euclides_estendido(valor_anterior, valor_atual):
     if valor_anterior < valor_atual:
         raise Exception("O primeiro parâmetro deve ser maior ou igual ao segundo")
     

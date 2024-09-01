@@ -21,12 +21,32 @@ def assina_conteudo_arquivo():
     e = int(input("Digite o valor de e: "))
 
     conteudo_arquivo = le_conteudo_arquivo(nome_arquivo)
-    bloco_assinado = BlocoAssinado.gerado_do_zero(conteudo_arquivo, KeyRsa(n,e))
+    bloco_assinado = BlocoAssinado.gerado_com_chave_rsa(conteudo_arquivo, KeyRsa(n,e))
     conteudo_arquivo_destino = formatacao_base_64.codifica_base_64(parsing_assinatura.bloco_assinado_para_bytes(bloco_assinado))
 
     grava_arquivo(nome_arquivo_destino, conteudo_arquivo_destino)
 
-def verifica_assinatura_em_arquivo():
+def grava_conteudo_original(bloco_assinado: BlocoAssinado):
+    nome_arquivo = input('Informe o nome do arquivo que deseja gravar o conteúdo original: ')
+    try: 
+        grava_arquivo(nome_arquivo, bloco_assinado.bytes_bloco)
+        print('Arquivo gravado com sucesso!!!')
+    except:
+        raise Exception("Falha na gravação do conteúdo original")
+
+
+def usuario_deseja_obter_arquivo_original() -> bool:
+    resposta = ''
+    
+    while(not (resposta == 's' or resposta == 'n')):
+        resposta = input("Deseja obter o arquivo que deu origem a assinatura[s/n]? ")
+        if(not (resposta == 's' or resposta == 'n')):
+            print('Resposta Inválida')
+            continue
+
+    return resposta == 's'
+
+def verificacao_e_gravacao_assinatura_em_arquivo():
     nome_arquivo = input("Informe o nome do arquivo com a assinatura: ")
     chave_verificacao = int(input("Digite o valor da chave de verificação: "))
 
@@ -37,6 +57,10 @@ def verifica_assinatura_em_arquivo():
             raise Exception("Assinatura Inválida")
 
         print("Assinatura Válida")
+
+        if(usuario_deseja_obter_arquivo_original()):
+            grava_conteudo_original(bloco_assinado)
+
     except:
         print("Assinatura Inválida")
         

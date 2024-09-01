@@ -2,6 +2,11 @@ import geracao_chave_rsa
 import rsa_oaep_services
 import assinatura_services
 import sys
+import os
+
+def limpa_tela():
+    os.system('cls' if os.name=='nt' else 'clear')
+
 
 def imprime_opcoes_de_servicos():
     print('Serviços disponíveis:')
@@ -9,34 +14,26 @@ def imprime_opcoes_de_servicos():
     print('2. Cifrar mensagem com RSA/OAEP')
     print('3. Decifrar criptograma com RSA/OAEP')
     print('4. Assinar arquivo com RSA')
-    print('5. Verificar assinatura de arquivo com RSA')
+    print('5. Verificação assinatura RSA em arquivo e gravação do conteúdo original')
     print('6. Finalizar')
 
-
-
-def chama_servico_desejado(opcao_selecionada: int):
-    match opcao_selecionada:
-        case 1:
-            geracao_chave_rsa.gera_chaves()
-        case 2:
-            rsa_oaep_services.cifra_mensagem_usuario()
-        case 3:
-            rsa_oaep_services.decifra_criptograma_usuario()
-        case 4:
-            assinatura_services.assina_conteudo_arquivo()
-        case 5:
-            assinatura_services.verifica_assinatura_em_arquivo()
-        case 6:
-            sys.exit()
-
 def main():
-    if __name__ == '__main__':        
-        finaliza_programa = False
+    servicos = {
+        '1': geracao_chave_rsa.gera_chaves,
+        '2': rsa_oaep_services.cifra_mensagem_usuario,
+        '3': rsa_oaep_services.decifra_criptograma_usuario,
+        '4': assinatura_services.assina_conteudo_arquivo,
+        '5': assinatura_services.verificacao_e_gravacao_assinatura_em_arquivo,
+        '6': sys.exit,
+    }
 
-        while(not finaliza_programa):
+    if __name__ == '__main__':        
+        while(True):
+            limpa_tela()
             imprime_opcoes_de_servicos()
-            opcao_selecionada = int(input("Qual opção deseja selecionar? "))
-            chama_servico_desejado(opcao_selecionada)
-            input("Digite qualquer coisa para continuar ")
+            opcao_selecionada = input("Qual opção deseja selecionar? ")
+            if opcao_selecionada in servicos:
+                servicos[opcao_selecionada]()
+                input("Digite qualquer coisa para continuar ")
 
 main()

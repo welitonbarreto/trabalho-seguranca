@@ -1,4 +1,4 @@
-from hashlib import sha256
+from hashlib import sha3_256
 from rsa import KeyRsa
 import math_util    
 
@@ -14,7 +14,7 @@ class BlocoAssinado:
 
     
     @classmethod
-    def gerado_do_zero(cls, bytes_bloco: bytes, chave_rsa: KeyRsa, hash_function=sha256): 
+    def gerado_com_chave_rsa(cls, bytes_bloco: bytes, chave_rsa: KeyRsa, hash_function=sha3_256): 
         hash_calculado = hash_function(bytes_bloco).digest()
         assinatura = chave_rsa.cifra(int.from_bytes(hash_calculado))
 
@@ -25,7 +25,7 @@ class BlocoAssinado:
         valor_decifrado = KeyRsa(self._valor_modulo_rsa, chave_verificacao).decifra(self._assinatura)
         hash_obtido = math_util.converte_int_para_bytes(valor_decifrado)
 
-        return sha256(self._bytes_bloco).digest() == hash_obtido
+        return sha3_256(self._bytes_bloco).digest() == hash_obtido
 
     @property
     def bytes_bloco(self):
